@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>de.mtg</groupId>
+    <artifactId>jplants</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>jplants</name>
+    <description>jplants</description>
+    <url>https://github.com/MTG-AG/jplants</url>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>MTG AG</id>
+            <name>MTG AG</name>
+            <email>contact@mtg.de</email>
+        </developer>
+    </developers>
+
+    <scm>
+        <connection>scm:git:https://github.com/MTG-AG/jplants.git</connection>
+        <url>https://github.com/MTG-AG/jplants</url>
+        <developerConnection>scm:git:https://github.com/MTG-AG/jplants.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
+    <properties>
+
+        <java.version>17</java.version>
+
+        <junit-jupiter-api.version>6.0.3</junit-jupiter-api.version>
+        <bcprov-jdk18on.version>1.83</bcprov-jdk18on.version>
+        <mockito-core.version>5.23.0</mockito-core.version>
+
+    </properties>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>${bcprov-jdk18on.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcpkix-jdk18on</artifactId>
+            <version>${bcprov-jdk18on.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${junit-jupiter-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-params</artifactId>
+            <version>${junit-jupiter-api.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito-core.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
