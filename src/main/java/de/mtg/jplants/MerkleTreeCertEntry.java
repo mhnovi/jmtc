@@ -19,11 +19,11 @@ public class MerkleTreeCertEntry {
         this.tbsCertEntryData = Arrays.copyOf(tbsCertEntryData, tbsCertEntryData.length);
     }
 
-    public static MerkleTreeCertEntry nullEntry(){
+    public static MerkleTreeCertEntry getEmptyInstace(){
         return new MerkleTreeCertEntry();
     }
 
-    public static MerkleTreeCertEntry tbsCertEntry(byte[] tbsCertEntryData){
+    public static MerkleTreeCertEntry getInstance(byte[] tbsCertEntryData){
         return new MerkleTreeCertEntry(tbsCertEntryData);
     }
 
