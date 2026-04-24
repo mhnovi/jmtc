@@ -1,4 +1,4 @@
-package de.mtg.jplants;
+package de.mtg.jplants.utils;
 
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -9,6 +9,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.Enumeration;
 
+import de.mtg.jplants.TBSCertificateLogEntry;
 import org.bouncycastle.asn1.ASN1Encodable;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;

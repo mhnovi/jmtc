@@ -18,4 +18,14 @@ public class MerkleTreeCertEntry {
         this.type = MerkleTreeCertEntryType.TBS_CERT_ENTRY;
         this.tbsCertEntryData = Arrays.copyOf(tbsCertEntryData, tbsCertEntryData.length);
     }
+
+    public static MerkleTreeCertEntry nullEntry(){
+        return new MerkleTreeCertEntry();
+    }
+
+    public static MerkleTreeCertEntry tbsCertEntry(byte[] tbsCertEntryData){
+        return new MerkleTreeCertEntry(tbsCertEntryData);
+    }
+
+
 }
