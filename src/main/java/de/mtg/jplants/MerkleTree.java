@@ -12,6 +12,7 @@ public class MerkleTree {
     private int end;
     private byte[] rootHash;
     private List<byte[]> entries;
+    private String hashAlgorithm =  "SHA-256"; // For now only SHA-256
 
     MerkleTree(int start, int end, List<byte[]> entries) {
         this.start = start;
@@ -19,8 +20,15 @@ public class MerkleTree {
         this.entries = entries;
     }
 
-    void append() {
+    void appendSingleEntry(byte[] entry) {
         // TODO
+    }
+    void appendBatch(List<byte[]> entries) {
+        // TODO
+        // batches ?
+        // see how many nodes until full with BIT_CEIL ?
+        // insert in stack after every new full subtree?
+        // add to end + entries.size
     }
 
     // MTH(D_n) as defined in RFC9162 Section 2.1.1
@@ -37,7 +45,7 @@ public class MerkleTree {
             return leafHash(entries.get(start));
         }
         if (size <= 0) {
-            MessageDigest messageDigest = MessageDigest.getInstance("SHA-256", BouncyCastleProvider.PROVIDER_NAME); // For now only SHA-256
+            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
             messageDigest.update((byte[]) null); // TODO correct?
             return messageDigest.digest();
         }
@@ -49,18 +57,29 @@ public class MerkleTree {
     }
 
     byte[] leafHash(byte[] entry) throws NoSuchAlgorithmException, NoSuchProviderException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256", BouncyCastleProvider.PROVIDER_NAME);
+        MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
         messageDigest.update((byte) 0x00);
         messageDigest.update(entry);
         return messageDigest.digest();
     }
 
     byte[] internalHash(byte[] left, byte[] right) throws NoSuchAlgorithmException, NoSuchProviderException {
-        MessageDigest messageDigest = MessageDigest.getInstance("SHA-256", BouncyCastleProvider.PROVIDER_NAME);
+        MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
         messageDigest.update((byte) 0x01);
         messageDigest.update(left);
         messageDigest.update(right);
         return messageDigest.digest();
+    }
+
+    boolean isValidSubtree() {
+        long size = end - start;
+        long bitCeil = bitCeil(size);
+        return start % bitCeil == 0;
+    }
+
+    // If is not full is partial
+    boolean isFullSubtree() {
+        return Long.bitCount(end - start) == 1;
     }
 
     int largestPowerOfTwoSmallerThan(int n) {
@@ -69,6 +88,14 @@ public class MerkleTree {
             return n / 2;
         }
         return highestOneBit;
+    }
+
+    //Smallest power of 2 greater or equal than n
+    long bitCeil(long n){
+        if(n <= 1){
+            return 1;
+        }
+        return Long.highestOneBit(n) << (Long.bitCount(n) > 1 ? 1 : 0);
     }
 
     public int getSize() {

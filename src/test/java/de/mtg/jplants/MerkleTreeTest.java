@@ -12,7 +12,6 @@ import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class MerkleTreeTest {
@@ -20,6 +19,9 @@ public class MerkleTreeTest {
 
     @Test
     void computeRoot() throws NoSuchAlgorithmException, NoSuchProviderException {
+
+        //TODO do it systematically
+
         Security.addProvider(new BouncyCastleProvider());
         byte[] first = "first".getBytes();
         byte[] second = "second".getBytes();
@@ -37,7 +39,6 @@ public class MerkleTreeTest {
         }
 
         assertNotNull(root);
-        System.out.println(Hex.toHexString(root));
 
         MessageDigest messageDigest = MessageDigest.getInstance("SHA-256", BouncyCastleProvider.PROVIDER_NAME);
 
@@ -90,10 +91,22 @@ public class MerkleTreeTest {
         byte[] node15 =  messageDigest.digest();
         messageDigest.reset();
 
-        System.out.println(Hex.toHexString(node15));
-
+        System.out.println("Root:" + Hex.toHexString(node15));
+        System.out.println("Root:" + Hex.toHexString(root));
 
         assertArrayEquals(node15, root);
+
+        System.out.println("Subtree14:" + Hex.toHexString(node14));
+        System.out.println("Subtree14:" + Hex.toHexString(merkleTree.subTreeHash(0,4)));
+        assertArrayEquals(node14, merkleTree.subTreeHash(0,4));
+
+        System.out.println("Subtree34:" + Hex.toHexString(node34));
+        System.out.println("Subtree34:" + Hex.toHexString(merkleTree.subTreeHash(2,4)));
+        assertArrayEquals(node34, merkleTree.subTreeHash(2,4));
+
+        System.out.println("leaf1:" + Hex.toHexString(leaf1));
+        System.out.println("leaf1:" + Hex.toHexString(merkleTree.subTreeHash(0,1)));
+        assertArrayEquals(leaf1, merkleTree.subTreeHash(0,1));
 
 
     }
