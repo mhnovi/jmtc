@@ -11,13 +11,14 @@ public class MerkleTree {
     private int start;
     private int end;
     private byte[] rootHash;
-    private List<byte[]> entries;
+    private List<byte[]> hasehdEntries;
     private String hashAlgorithm =  "SHA-256"; // For now only SHA-256
 
-    MerkleTree(int start, int end, List<byte[]> entries) {
+    MerkleTree(int start, int end, List<byte[]> hasehdEntries) {
         this.start = start;
         this.end = end;
-        this.entries = entries;
+        this.hasehdEntries = hasehdEntries;
+        this.rootHash = subTreeHash(start, end);
     }
 
     void appendSingleEntry(byte[] entry) {
@@ -32,22 +33,26 @@ public class MerkleTree {
     }
 
     // MTH(D_n) as defined in RFC9162 Section 2.1.1
-    byte[] rootHash() throws NoSuchAlgorithmException, NoSuchProviderException {
+    byte[] rootHash() {
         return subTreeHash(start, end);
     }
 
     // [start, end)
     // k < n <= 2k  k is the largest power of 2 smaller than n
-    byte[] subTreeHash(int start, int end) throws NoSuchAlgorithmException, NoSuchProviderException {
+    byte[] subTreeHash(int start, int end) {
         int size = end - start;
 
         if (size == 1) {
-            return leafHash(entries.get(start));
+            return leafHash(hasehdEntries.get(start));
         }
         if (size <= 0) {
-            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-            messageDigest.update((byte[]) null); // TODO correct?
-            return messageDigest.digest();
+            try{
+                MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
+                messageDigest.update((byte[]) null); // TODO correct see Draft?
+                return messageDigest.digest();
+            } catch (NoSuchAlgorithmException | NoSuchProviderException e){
+                throw new RuntimeException(e);
+            }
         }
 
         // compute split index k
@@ -56,19 +61,32 @@ public class MerkleTree {
         return internalHash(subTreeHash(start, splitK), subTreeHash(splitK, end));
     }
 
-    byte[] leafHash(byte[] entry) throws NoSuchAlgorithmException, NoSuchProviderException {
-        MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-        messageDigest.update((byte) 0x00);
-        messageDigest.update(entry);
-        return messageDigest.digest();
+    byte[] leafHash(byte[] entry)  {
+        byte[] leafHash; // TODO better null handling?
+        try{
+            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
+            messageDigest.update((byte) 0x00);
+            messageDigest.update(entry);
+            leafHash = messageDigest.digest();
+        } catch (NoSuchAlgorithmException | NoSuchProviderException e){
+            throw new RuntimeException(e);
+        }
+
+        return leafHash;
     }
 
-    byte[] internalHash(byte[] left, byte[] right) throws NoSuchAlgorithmException, NoSuchProviderException {
-        MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-        messageDigest.update((byte) 0x01);
-        messageDigest.update(left);
-        messageDigest.update(right);
-        return messageDigest.digest();
+    byte[] internalHash(byte[] left, byte[] right) {
+        byte[] internalHash; // TODO better null handling?
+        try {
+            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
+            messageDigest.update((byte) 0x01);
+            messageDigest.update(left);
+            messageDigest.update(right);
+            internalHash = messageDigest.digest();
+        }  catch (NoSuchAlgorithmException | NoSuchProviderException e){
+            throw new RuntimeException(e);
+        }
+        return internalHash;
     }
 
     boolean isValidSubtree() {
@@ -102,7 +120,7 @@ public class MerkleTree {
         return end - start;
     }
 
-    public byte[] getRootHash() {
+    public byte[] getCurrentRootHash() {
         return rootHash;
     }
 
@@ -114,7 +132,7 @@ public class MerkleTree {
         return end;
     }
 
-    public List<byte[]> getEntries() {
-        return entries;
+    public List<byte[]> getHasehdEntries() {
+        return hasehdEntries;
     }
 }
