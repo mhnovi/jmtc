@@ -1,10 +1,11 @@
-package de.mtg.jplants;
+package de.mtg.jplants.merkle;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.List;
 
+import de.mtg.jplants.utils.TreeUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 public class MerkleTree {
@@ -14,16 +15,13 @@ public class MerkleTree {
     private List<byte[]> hasehdEntries;
     private String hashAlgorithm =  "SHA-256"; // For now only SHA-256
 
-    MerkleTree(int start, int end, List<byte[]> hasehdEntries) {
+    MerkleTree(int start, int end, List<byte[]> hashedEntries) {
         this.start = start;
         this.end = end;
-        this.hasehdEntries = hasehdEntries;
+        this.hasehdEntries = hashedEntries;
         this.rootHash = subTreeHash(start, end);
     }
 
-    void appendSingleEntry(byte[] entry) {
-        // TODO
-    }
     void appendBatch(List<byte[]> entries) {
         // TODO
         // batches ?
@@ -56,7 +54,7 @@ public class MerkleTree {
         }
 
         // compute split index k
-        int splitK = start + largestPowerOfTwoSmallerThan(size);
+        int splitK = start + TreeUtils.largestPowerOfTwoSmallerThan(size);
 
         return internalHash(subTreeHash(start, splitK), subTreeHash(splitK, end));
     }
@@ -89,33 +87,6 @@ public class MerkleTree {
         return internalHash;
     }
 
-    boolean isValidSubtree() {
-        long size = end - start;
-        long bitCeil = bitCeil(size);
-        return start % bitCeil == 0;
-    }
-
-    // If is not full is partial
-    boolean isFullSubtree() {
-        return Long.bitCount(end - start) == 1;
-    }
-
-    int largestPowerOfTwoSmallerThan(int n) {
-        int highestOneBit = Integer.highestOneBit(n);
-        if (highestOneBit == n) {
-            return n / 2;
-        }
-        return highestOneBit;
-    }
-
-    //Smallest power of 2 greater or equal than n
-    long bitCeil(long n){
-        if(n <= 1){
-            return 1;
-        }
-        return Long.highestOneBit(n) << (Long.bitCount(n) > 1 ? 1 : 0);
-    }
-
     public int getSize() {
         return end - start;
     }
@@ -132,7 +103,7 @@ public class MerkleTree {
         return end;
     }
 
-    public List<byte[]> getHasehdEntries() {
+    public List<byte[]> getHashedEntries() {
         return hasehdEntries;
     }
 }

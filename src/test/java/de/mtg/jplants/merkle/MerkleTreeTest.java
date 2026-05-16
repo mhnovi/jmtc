@@ -1,4 +1,4 @@
-package de.mtg.jplants;
+package de.mtg.jplants.merkle;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,12 +7,12 @@ import java.security.Security;
 import java.util.Arrays;
 import java.util.List;
 
+import de.mtg.jplants.utils.TreeUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertArrayEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class MerkleTreeTest {
 
@@ -109,6 +109,16 @@ public class MerkleTreeTest {
         assertArrayEquals(leaf1, merkleTree.subTreeHash(0,1));
 
 
+    }
+
+    @Test
+    void isValidSubtreeTest(){
+        boolean result1 = TreeUtils.isValidSubtree(4, 8);
+        assertTrue(result1);
+        boolean result2 = TreeUtils.isValidSubtree(8,13);
+        assertTrue(result2);
+        boolean falseResult = TreeUtils.isValidSubtree(1,13);
+        assertFalse(falseResult);
     }
 
 }

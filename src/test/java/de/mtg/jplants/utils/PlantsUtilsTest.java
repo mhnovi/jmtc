@@ -1,4 +1,4 @@
-package de.mtg.jplants;
+package de.mtg.jplants.utils;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
-import de.mtg.jplants.utils.PlantsUtils;
+import de.mtg.jplants.TBSCertificateLogEntry;
 import org.bouncycastle.asn1.ASN1Encoding;
 import org.bouncycastle.asn1.ASN1Integer;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
