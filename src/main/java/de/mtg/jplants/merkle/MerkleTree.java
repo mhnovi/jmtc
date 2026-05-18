@@ -1,109 +1,76 @@
 package de.mtg.jplants.merkle;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.util.List;
-
 import de.mtg.jplants.utils.TreeUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 
 public class MerkleTree {
-    private int start;
-    private int end;
-    private byte[] rootHash;
-    private List<byte[]> hasehdEntries;
-    private String hashAlgorithm =  "SHA-256"; // For now only SHA-256
 
-    MerkleTree(int start, int end, List<byte[]> hashedEntries) {
-        this.start = start;
-        this.end = end;
-        this.hasehdEntries = hashedEntries;
-        this.rootHash = subTreeHash(start, end);
+    private final MerkleHasher hasher;
+
+    /**
+     * The frontier: one hash per set bit in the current size,
+     * ordered from least significant to most significant bit.
+     * frontier.get(i) is the hash of the complete subtree of size 2^i
+     * covering the most recent 2^i entries.
+     */
+    private final List<byte[]> frontier = new ArrayList<>();
+
+    /**
+     * Full node store: every internal node hash ever computed,
+     * keyed by (level, position) for proof construction.
+     * level 0 = leaves, level k = subtrees of size 2^k.
+     */
+    private final Map<NodeKey, byte[]> nodes = new HashMap<>();
+
+    private long size = 0;
+
+    // With default MerkleHasher
+    MerkleTree(){
+        this.hasher = new MerkleHasher();
+    }
+    MerkleTree(MerkleHasher hasher) {
+        this.hasher = hasher;
     }
 
-    void appendBatch(List<byte[]> entries) {
+    void append(List<byte[]> entriesBatch) {
         // TODO
-        // batches ?
-        // see how many nodes until full with BIT_CEIL ?
-        // insert in stack after every new full subtree?
-        // add to end + entries.size
-    }
+        long batchSize = entriesBatch.size();
+        long newSize =  size + batchSize;
+        long last = size - 1;
 
-    // MTH(D_n) as defined in RFC9162 Section 2.1.1
-    byte[] rootHash() {
-        return subTreeHash(start, end);
-    }
-
-    // [start, end)
-    // k < n <= 2k  k is the largest power of 2 smaller than n
-    byte[] subTreeHash(int start, int end) {
-        int size = end - start;
-
-        if (size == 1) {
-            return leafHash(hasehdEntries.get(start));
-        }
-        if (size <= 0) {
-            try{
-                MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-                messageDigest.update((byte[]) null); // TODO correct see Draft?
-                return messageDigest.digest();
-            } catch (NoSuchAlgorithmException | NoSuchProviderException e){
-                throw new RuntimeException(e);
-            }
+        // 1. Proof if last index is full or partial subtree
+        if(!TreeUtils.isPowerOfTwo(size)){
+            // 1.1 true -> Append necessary entries (or single) to make a full little tree. With BIT_CEIL?
+            // +1 because of single append
+            last ++;
         }
 
-        // compute split index k
-        int splitK = start + TreeUtils.largestPowerOfTwoSmallerThan(size);
+        // 3. Get new last index and merge hashes from new last index backwards to old last index
+        long newLast = newSize - 1;
 
-        return internalHash(subTreeHash(start, splitK), subTreeHash(splitK, end));
+
+        // 4. Increase new size
+        size += batchSize;
     }
 
-    byte[] leafHash(byte[] entry)  {
-        byte[] leafHash; // TODO better null handling?
-        try{
-            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-            messageDigest.update((byte) 0x00);
-            messageDigest.update(entry);
-            leafHash = messageDigest.digest();
-        } catch (NoSuchAlgorithmException | NoSuchProviderException e){
-            throw new RuntimeException(e);
-        }
-
-        return leafHash;
+    /**
+     *
+     * @param level
+     * @param position
+     * @param nodeHashValue
+     */
+    void storeNode(long level, long position, byte[] nodeHashValue){
+        NodeKey nodeKey = new NodeKey(level, position);
+        nodes.put(nodeKey,nodeHashValue);
     }
 
-    byte[] internalHash(byte[] left, byte[] right) {
-        byte[] internalHash; // TODO better null handling?
-        try {
-            MessageDigest messageDigest = MessageDigest.getInstance(hashAlgorithm, BouncyCastleProvider.PROVIDER_NAME);
-            messageDigest.update((byte) 0x01);
-            messageDigest.update(left);
-            messageDigest.update(right);
-            internalHash = messageDigest.digest();
-        }  catch (NoSuchAlgorithmException | NoSuchProviderException e){
-            throw new RuntimeException(e);
-        }
-        return internalHash;
+    public long getSize() {
+        return size;
     }
 
-    public int getSize() {
-        return end - start;
-    }
-
-    public byte[] getCurrentRootHash() {
-        return rootHash;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public int getEnd() {
-        return end;
-    }
-
-    public List<byte[]> getHashedEntries() {
-        return hasehdEntries;
-    }
 }

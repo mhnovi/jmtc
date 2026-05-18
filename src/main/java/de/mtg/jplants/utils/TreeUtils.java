@@ -19,6 +19,7 @@ public class TreeUtils {
 
     // If is not full is partial
     static public boolean isFullSubtree(long start, long end) {
+
         return Long.bitCount(end - start) == 1;
     }
 
@@ -29,4 +30,9 @@ public class TreeUtils {
         }
         return highestOneBit;
     }
+
+    static public boolean isPowerOfTwo(long n) {
+        return n > 0 && (n == Long.highestOneBit(n));
+    }
+
 }
