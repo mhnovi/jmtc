@@ -3,18 +3,10 @@ package de.mtg.jplants.utils;
 public class TreeUtils {
 
     static public boolean isValidSubtree(long start, long end) {
-        // TODO add exceptions ?
+        // TODO custom add exceptions ?
         long size = end - start;
         long bitCeil = bitCeil(size);
         return start % bitCeil == 0;
-    }
-
-    //Smallest power of 2 greater or equal than n
-    static public long bitCeil(long n){
-        if(n <= 1){
-            return 1;
-        }
-        return Long.highestOneBit(n) << (Long.bitCount(n) > 1 ? 1 : 0);
     }
 
     // If is not full is partial
@@ -31,8 +23,21 @@ public class TreeUtils {
         return highestOneBit;
     }
 
+    //Smallest power of 2 greater or equal than n
+    static public long bitCeil(long n){
+        if(n <= 1){
+            return 1;
+        }
+        return Long.highestOneBit(n) << (Long.bitCount(n) > 1 ? 1 : 0);
+    }
+
     static public boolean isPowerOfTwo(long n) {
         return n > 0 && (n == Long.highestOneBit(n));
+    }
+
+    // LSB set -> Right child. Odd
+    static public boolean isLSBSet(long n){
+        return (n & 1L) != 0;
     }
 
 }

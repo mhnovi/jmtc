@@ -29,33 +29,57 @@ public class MerkleTree {
 
     private long size = 0;
 
-    // With default MerkleHasher
+
     MerkleTree(){
+        // With default MerkleHasher
         this.hasher = new MerkleHasher();
     }
     MerkleTree(MerkleHasher hasher) {
+
         this.hasher = hasher;
     }
 
     void append(List<byte[]> entriesBatch) {
         // TODO
+        if(size == 0){
+            // TODO or Batch Null
+        }
         long batchSize = entriesBatch.size();
         long newSize =  size + batchSize;
         long last = size - 1;
 
-        // 1. Proof if last index is full or partial subtree
-        if(!TreeUtils.isPowerOfTwo(size)){
-            // 1.1 true -> Append necessary entries (or single) to make a full little tree. With BIT_CEIL?
-            // +1 because of single append
-            last ++;
+        for(byte[] entry : entriesBatch){
+            appendEntry(entry,last);
         }
 
-        // 3. Get new last index and merge hashes from new last index backwards to old last index
-        long newLast = newSize - 1;
+        // if newSize is not power of 2 -> root is not recomputed
+        // if any leaf is "dangling" at the end, take it into account and propagate to root
+        // todos los sobrantes hasta el proximo power of 2
+        // agarrar todos los sobrantes y conectarlos sobrantes son right edge, right sibling of every full subtree
+        if(!TreeUtils.isPowerOfTwo(newSize)){
+            // TODO use frontier
+        }
 
+        //Update size
+        size = newSize;
+    }
 
-        // 4. Increase new size
-        size += batchSize;
+    // Doesn't take into account when the leaf is alone. Try [0,6) -> append at pos=6
+    // only propagates upwards if there is already a left sibling, if not waits and leave the leaf "dangling"
+    private void appendEntry(byte[] rawEntry, long last){
+        long level = 0;
+        long pos = last + 1;
+        //Store leaf
+        byte[] hash = hasher.leafHash(rawEntry);
+        storeNode(level, pos, hash);
+        //Merge upwards
+        while(TreeUtils.isLSBSet(pos)){
+            byte[] leftSiblingHash = nodes.get(new NodeKey(level, pos ^ 1));
+            hash = hasher.nodeHash(leftSiblingHash, hash);
+            level++;
+            pos = pos >> 1;
+            nodes.put(new NodeKey(level, pos), hash);
+        }
     }
 
     /**
